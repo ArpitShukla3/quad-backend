@@ -10,7 +10,7 @@ dotenv.config();
 
 
 
-const signup=async (req,res)=>{
+export const signup=async (req,res)=>{
     const{ name, email, password, confirmPassword,mobile} = req.body;
     if(!name || !email || !password ||!confirmPassword||!mobile)
        {
@@ -74,4 +74,48 @@ const signup=async (req,res)=>{
  
 
 //Sign in section
-export default signup;
+export const signin=async(req, res)=>{
+       try{
+              const {email ,password }=req.body;
+              if(!email || !password)
+              {
+                     return res.status(500).json({
+                            succes:false,
+                            message: "enter email and password"
+                           })  
+              }
+              if(!emailValidator.validate(email))
+              {
+                     return res.status(500).json({
+                            succes:false,
+                            message: "enter correct email"
+                           })    
+              }
+              const user=await userModel.findOne({email}).select('+password');
+              // const payload={email: user.email, };
+              if(!user||(await bcrypt.compare(user.password,password )))
+              {
+                     return res.status(500).json({
+                            succes:true,
+                            message: "Enter correct credentials"
+                           }) 
+              }
+                const token=jwt.sign(user.toJSON(), process.env.SECRET, { expiresIn: '180000000000s' });;
+                user.password=undefined;
+                const cookieOption={
+                maxAge:20*24*60*60*1000,
+                };
+               res.cookie("token",token,cookieOption);
+               res.status(200).json({ 
+                success:true,
+                 data:user   
+                });
+}
+      catch(error){
+       res.status(400).json({
+              success: false,
+              reason_of_failure: ""+error
+       })
+     } 
+}
+// export default {signup, signin};
