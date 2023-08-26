@@ -118,4 +118,27 @@ export const signin=async(req, res)=>{
        })
      } 
 }
+
+
+
+//get USer section
+//@ does not require sign in if user has previously signedin
+
+export const getUser=async(req,res)=>{
+       const userid=req.user.email;
+       try {
+              const user= await userModel.findOne({email: userid})
+              res.status(200).json({
+                     success:true,
+                     detail:user
+              })
+       } catch (error) {
+              res.status(500).json({  
+                     success:false,
+                     message:"error  occurred  in Controller/Controller/getUser due to error: "+error
+              })
+       }
+}
+
+
 // export default {signup, signin};
