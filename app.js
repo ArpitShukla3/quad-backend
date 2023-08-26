@@ -7,9 +7,7 @@ dataBaseConnect();
 app.use(express.json());
 app.use(cookieParse());
 
-app.use("/",function(req,res){
-    route
-});
+app.use("/",route);
 
 
 

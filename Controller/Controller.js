@@ -69,4 +69,4 @@ const signup=async (req,res)=>{
           }
 };
 
-export default {signup};
+export default signup;
