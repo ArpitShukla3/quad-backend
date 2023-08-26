@@ -1,4 +1,4 @@
-import userModule from "../Model/userSchema.js";
+import userModel from "../Model/userSchema.js";
 import hotelModel from "../Model/hotelSchema.js";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
@@ -11,8 +11,8 @@ dotenv.config();
 
 
 const signup=async (req,res)=>{
-    const{ name, email, password, confirmPassword} = req.body;
-    if(!name || !email || !password ||!confirmPassword)
+    const{ name, email, password, confirmPassword,mobile} = req.body;
+    if(!name || !email || !password ||!confirmPassword||!mobile)
        {
               return res.status(400).json({
                      success:false,
@@ -33,16 +33,26 @@ const signup=async (req,res)=>{
                      success:false,
                      data: "password !=confirm Password"
               }) 
+
+       }
+       //seraching mobile phone in database and throwing error in case is user already exits
+       const foundItem = await userModel.findOne({email});
+       if (foundItem) {
+          return res.status(400).json({
+              success:false,
+              message:"user exists"
+          })
        }
        try{
-        const userInfo=new userModule(req.body);
-        const result=await userInfo.save();
+       
+        const userInfo=new userModel(req.body);
+        const result=await userInfo.save(); 
         //options for jwt token
         const tokenOptions={
             expiresIn:"20 days"
         };
         //creating cookie and storing data in token
-        const token=await jwt.JsonWebTokenError({email:email,password:password},process.env.SECRET,tokenOptions);
+        const token=await jwt.sign({email:email,password:password},process.env.SECRET,tokenOptions);
          //loading up token in cookie
         const cookieOption={
             maxAge:20*24*60*60*1000
@@ -50,23 +60,18 @@ const signup=async (req,res)=>{
         res.cookie("token",token,cookieOption);
         return res.status(200).json({
                success: true,
-               data: result,
+               data: "result is here"
               })
           }
-          catch(error) 
+          catch(err) 
           {
-                if(error.code==11000)
-                {
-                 res.status(400).json({
-                        success: false,
-                        message: "account already exists with this email id"
-                 })
-                }
                 return res.status(400).json({
                  success: false,
-                 message: error.message
+                 message: "error occureed in try block" +err.message
                 })
           }
-};
+}; 
+ 
 
+//Sign in section
 export default signup;
