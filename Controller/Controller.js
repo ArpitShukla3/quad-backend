@@ -139,6 +139,22 @@ export const getUser=async(req,res)=>{
               })
        }
 }
-
+export const logout=async(req,res)=>{
+       try {
+              const option={  
+                     expires:new Date(),
+              }
+              res.cookie("token",null,option);
+              res.status(200).json({
+                     success:true,
+                     message:'logged out'
+              })
+           } catch (error) {
+              res.status(400).json({
+                     success: false,
+                     message: error.message
+              })
+           }
+}
 
 // export default {signup, signin};
