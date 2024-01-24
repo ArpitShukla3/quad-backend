@@ -7,12 +7,11 @@ dataBaseConnect();
 app.use(express.json());
 
 import bodyParser from "body-parser";
-
 app.use(bodyParser.json());
 app.use(cors());
 app.use("/",route);
+                           
 
-
-
+ 
 
 export default app;
