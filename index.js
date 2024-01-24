@@ -1,9 +1,9 @@
-const PORT=5001;
+const PORT=4500;
 import app from "./app.js";
 
+import bodyParser from "body-parser";
 
-
-
+app.use(bodyParser.json());
 
 
 

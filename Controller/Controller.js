@@ -6,12 +6,20 @@ import bcrypt from "bcrypt";
 import emailValidator from "email-validator";
 import cookieParser from "cookie-parser";
 dotenv.config();
+import bodyParser  from "body-parser";
 
-
-
-
-export const signup=async (req,res)=>{
-    const{ name, email, password, confirmPassword,mobile} = req.body;
+export const  signup=async (req,res)=>{
+       console.log("hic", req.body);
+    const{ name, email, password, confirmPassword, mobile} = req.body;
+    const newObj = {
+       name,
+       email,
+       password,
+       confirmPassword,
+       mobile
+    }
+    console.log(name,email,password,confirmPassword);
+//     return res.status(200).json({message: "data was correctly handled",body:req.body});
     if(!name || !email || !password ||!confirmPassword||!mobile)
        {
               return res.status(400).json({
@@ -22,14 +30,14 @@ export const signup=async (req,res)=>{
        const emailValid=emailValidator.validate(email);
        if(!emailValid)
        {
-              return res.status(400).json({
+              return res.status(402).json({
                      success:false,
                      data: "enter correct email id"
               }) 
        }
-       if(password!=confirmPassword)
+       if(password!==confirmPassword)
        {
-              return res.status(400).json({
+              return res.status(403).json({
                      success:false,
                      data: "password !=confirm Password"
               }) 
@@ -45,14 +53,15 @@ export const signup=async (req,res)=>{
        }
        try{
        
-        const userInfo=new userModel(req.body);
-        const result=await userInfo.save(); 
+        const userInfo=new userModel(newObj);
+        const result=await userInfo.save();
+        console.log("working till result"); 
         //options for jwt token
         const tokenOptions={
             expiresIn:"20 days"
         };
         //creating cookie and storing data in token
-        const token=await jwt.sign({email:email,password:password},process.env.SECRET,tokenOptions);
+        const token= await jwt.sign({email:email,password:password},process.env.SECRET,tokenOptions);
          //loading up token in cookie
         const cookieOption={
             maxAge:20*24*60*60*1000
@@ -156,5 +165,12 @@ export const logout=async(req,res)=>{
               })
            }
 }
-
+export const reset=async(req,res)=>{
+       const {email ,password}=req.body;
+     const doc= await userModel.findOneAndUpdate({email:email},{password:password},{new:true});
+     return res.status(200).json({
+       success:true,
+       message:"successfullu changed password"  
+     })
+}
 // export default {signup, signin};
